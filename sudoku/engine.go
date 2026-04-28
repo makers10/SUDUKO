@@ -106,6 +106,7 @@ func (e *Engine) GeneratePuzzle(difficulty string) Puzzle {
 		"easy":   36,
 		"medium": 46,
 		"hard":   54,
+		"master": 62,
 	}
 
 	toRemove := removeCount[difficulty]
@@ -133,7 +134,7 @@ func (e *Engine) GeneratePuzzle(difficulty string) Puzzle {
 		backup := puzzle[p.r][p.c]
 		puzzle[p.r][p.c] = 0
 
-		if difficulty == "hard" {
+		if difficulty == "hard" || difficulty == "master" {
 			if e.countSolutions(e.copyBoard(puzzle), 0, 2) != 1 {
 				puzzle[p.r][p.c] = backup
 				continue
