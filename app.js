@@ -58,7 +58,62 @@
         buildBoard();
         bindEvents();
         showTutorialOnFirstVisit();
+        initDraggableLogo();
         newGame('easy');
+    }
+
+    // ===== Draggable Logo =====
+    function initDraggableLogo() {
+        const logo = document.querySelector('.logo');
+        let isDragging = false;
+        let startX, startY;
+        let currentX = 0, currentY = 0;
+        let initialX = 0, initialY = 0;
+
+        logo.addEventListener('mousedown', dragStart);
+        logo.addEventListener('touchstart', dragStart, { passive: false });
+
+        document.addEventListener('mousemove', drag);
+        document.addEventListener('touchmove', drag, { passive: false });
+
+        document.addEventListener('mouseup', dragEnd);
+        document.addEventListener('touchend', dragEnd);
+
+        function dragStart(e) {
+            if (e.type === 'touchstart') {
+                startX = e.touches[0].clientX - initialX;
+                startY = e.touches[0].clientY - initialY;
+            } else {
+                startX = e.clientX - initialX;
+                startY = e.clientY - initialY;
+            }
+
+            isDragging = true;
+            logo.classList.add('dragging');
+        }
+
+        function drag(e) {
+            if (!isDragging) return;
+            if (e.type === 'touchmove') e.preventDefault();
+
+            if (e.type === 'touchmove') {
+                currentX = e.touches[0].clientX - startX;
+                currentY = e.touches[0].clientY - startY;
+            } else {
+                currentX = e.clientX - startX;
+                currentY = e.clientY - startY;
+            }
+
+            initialX = currentX;
+            initialY = currentY;
+
+            logo.style.transform = `translate(${currentX}px, ${currentY}px)`;
+        }
+
+        function dragEnd() {
+            isDragging = false;
+            logo.classList.remove('dragging');
+        }
     }
 
     // ===== Background Particles =====

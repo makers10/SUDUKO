@@ -254,11 +254,23 @@ body {
     display: flex; align-items: center; justify-content: space-between;
     padding: 8px 0 16px;
 }
-.logo { display: flex; align-items: center; gap: 12px; }
+.logo {
+    display: flex; align-items: center; gap: 12px;
+    cursor: grab;
+    user-select: none;
+    z-index: 100;
+    transition: transform 0.1s ease-out;
+}
+.logo.dragging {
+    cursor: grabbing;
+    transition: none;
+}
 .logo h1 {
     font-size: 24px; font-weight: 800; letter-spacing: -0.5px;
     background: var(--gradient-1); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    pointer-events: none;
 }
+.logo-icon { pointer-events: none; }
 
 /* ===== Status Bar ===== */
 .status-bar {
