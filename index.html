@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Play Sudoku - A beautifully designed puzzle game with interactive tutorial, multiple difficulty levels, hints, and pencil notes.">
+    <title>Sudoku — Puzzle Master</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Background particles -->
+    <div id="bg-particles" class="bg-particles"></div>
+
+    <!-- Tutorial Overlay -->
+    <div id="tutorial-overlay" class="overlay hidden">
+        <div class="tutorial-modal">
+            <button id="tutorial-close-btn" class="modal-close-btn" aria-label="Close tutorial">&times;</button>
+            <div class="tutorial-content">
+                <div id="tutorial-slides" class="tutorial-slides">
+                    <!-- Slide 1 -->
+                    <div class="tutorial-slide active" data-slide="0">
+                        <div class="slide-icon">🧩</div>
+                        <h2>Welcome to Sudoku</h2>
+                        <p>Sudoku is a logic-based number placement puzzle. The objective is to fill a 9×9 grid with digits so that each <strong>column</strong>, each <strong>row</strong>, and each of the nine <strong>3×3 sub-boxes</strong> contain all of the digits from 1 to 9.</p>
+                        <div class="slide-visual">
+                            <div class="mini-grid">
+                                <div class="mini-row highlight-row">
+                                    <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span>
+                                </div>
+                                <div class="mini-row">
+                                    <span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>1</span><span>2</span><span>3</span>
+                                </div>
+                                <div class="mini-row">
+                                    <span>7</span><span>8</span><span>9</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span>
+                                </div>
+                            </div>
+                            <p class="visual-caption">Each row must contain 1–9 without repetition</p>
+                        </div>
+                    </div>
+
+                    <!-- Slide 2 -->
+                    <div class="tutorial-slide" data-slide="1">
+                        <div class="slide-icon">📏</div>
+                        <h2>The Rules</h2>
+                        <div class="rules-list">
+                            <div class="rule-item">
+                                <div class="rule-number">1</div>
+                                <div class="rule-text">
+                                    <strong>Rows:</strong> Each row must contain the numbers 1–9 with no duplicates.
+                                </div>
+                            </div>
+                            <div class="rule-item">
+                                <div class="rule-number">2</div>
+                                <div class="rule-text">
+                                    <strong>Columns:</strong> Each column must contain the numbers 1–9 with no duplicates.
+                                </div>
+                            </div>
+                            <div class="rule-item">
+                                <div class="rule-number">3</div>
+                                <div class="rule-text">
+                                    <strong>3×3 Boxes:</strong> Each of the nine 3×3 sub-grids must contain the numbers 1–9 with no duplicates.
+                                </div>
+                            </div>
+                            <div class="rule-item">
+                                <div class="rule-number">4</div>
+                                <div class="rule-text">
+                                    <strong>Given Numbers:</strong> Some cells are pre-filled. These cannot be changed.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Slide 3 -->
+                    <div class="tutorial-slide" data-slide="2">
+                        <div class="slide-icon">💡</div>
+                        <h2>Tips & Strategies</h2>
+                        <div class="tips-grid">
+                            <div class="tip-card">
+                                <div class="tip-icon">🔍</div>
+                                <h3>Scanning</h3>
+                                <p>Look for rows, columns, or boxes that are nearly complete. The missing numbers are easier to figure out.</p>
+                            </div>
+                            <div class="tip-card">
+                                <div class="tip-icon">✏️</div>
+                                <h3>Pencil Marks</h3>
+                                <p>Use the Notes mode to write small candidate numbers in cells when you're unsure.</p>
+                            </div>
+                            <div class="tip-card">
+                                <div class="tip-icon">🎯</div>
+                                <h3>Elimination</h3>
+                                <p>If a number appears in a row and column, it can't appear again. Use this to eliminate possibilities.</p>
+                            </div>
+                            <div class="tip-card">
+                                <div class="tip-icon">🧠</div>
+                                <h3>Single Candidate</h3>
+                                <p>If only one number can fit in a cell after elimination, that must be the answer!</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Slide 4 -->
+                    <div class="tutorial-slide" data-slide="3">
+                        <div class="slide-icon">🎮</div>
+                        <h2>How to Play</h2>
+                        <div class="controls-guide">
+                            <div class="control-item">
+                                <div class="control-key">Click</div>
+                                <span>Select a cell on the board</span>
+                            </div>
+                            <div class="control-item">
+                                <div class="control-key">1-9</div>
+                                <span>Enter a number in the selected cell</span>
+                            </div>
+                            <div class="control-item">
+                                <div class="control-key">Delete</div>
+                                <span>Erase the number in a cell</span>
+                            </div>
+                            <div class="control-item">
+                                <div class="control-key">N</div>
+                                <span>Toggle Notes (pencil) mode</span>
+                            </div>
+                            <div class="control-item">
+                                <div class="control-key">H</div>
+                                <span>Get a hint for the selected cell</span>
+                            </div>
+                            <div class="control-item">
+                                <div class="control-key">Ctrl+Z</div>
+                                <span>Undo your last move</span>
+                            </div>
+                        </div>
+                        <p class="ready-text">You're all set! Choose a difficulty and start playing. 🎉</p>
+                    </div>
+                </div>
+
+                <!-- Slide Navigation -->
+                <div class="tutorial-nav">
+                    <button id="tutorial-prev-btn" class="tut-nav-btn" disabled aria-label="Previous slide">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+                        Back
+                    </button>
+                    <div class="slide-dots">
+                        <span class="dot active" data-dot="0"></span>
+                        <span class="dot" data-dot="1"></span>
+                        <span class="dot" data-dot="2"></span>
+                        <span class="dot" data-dot="3"></span>
+                    </div>
+                    <button id="tutorial-next-btn" class="tut-nav-btn" aria-label="Next slide">
+                        Next
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Victory Overlay -->
+    <div id="victory-overlay" class="overlay hidden">
+        <div class="victory-modal">
+            <div class="victory-particles" id="victory-particles"></div>
+            <div class="victory-icon">🏆</div>
+            <h2>Puzzle Complete!</h2>
+            <div class="victory-stats">
+                <div class="victory-stat">
+                    <span class="stat-label">Time</span>
+                    <span id="victory-time" class="stat-value">00:00</span>
+                </div>
+                <div class="victory-stat">
+                    <span class="stat-label">Difficulty</span>
+                    <span id="victory-difficulty" class="stat-value">Easy</span>
+                </div>
+                <div class="victory-stat">
+                    <span class="stat-label">Mistakes</span>
+                    <span id="victory-mistakes" class="stat-value">0</span>
+                </div>
+                <div class="victory-stat">
+                    <span class="stat-label">Hints Used</span>
+                    <span id="victory-hints" class="stat-value">0</span>
+                </div>
+            </div>
+            <button id="victory-new-game-btn" class="btn btn-primary btn-glow">New Game</button>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="app" class="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <div class="logo-icon">
+                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                        <rect x="2" y="2" width="8" height="8" rx="2" fill="url(#g1)" opacity="0.9"/>
+                        <rect x="12" y="2" width="8" height="8" rx="2" fill="url(#g1)" opacity="0.7"/>
+                        <rect x="22" y="2" width="8" height="8" rx="2" fill="url(#g1)" opacity="0.5"/>
+                        <rect x="2" y="12" width="8" height="8" rx="2" fill="url(#g1)" opacity="0.7"/>
+                        <rect x="12" y="12" width="8" height="8" rx="2" fill="url(#g2)" opacity="0.9"/>
+                        <rect x="22" y="12" width="8" height="8" rx="2" fill="url(#g1)" opacity="0.7"/>
+                        <rect x="2" y="22" width="8" height="8" rx="2" fill="url(#g1)" opacity="0.5"/>
+                        <rect x="12" y="22" width="8" height="8" rx="2" fill="url(#g1)" opacity="0.7"/>
+                        <rect x="22" y="22" width="8" height="8" rx="2" fill="url(#g1)" opacity="0.9"/>
+                        <defs>
+                            <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+                                <stop stop-color="#7C5CFC"/>
+                                <stop offset="1" stop-color="#B94FFF"/>
+                            </linearGradient>
+                            <linearGradient id="g2" x1="0" y1="0" x2="1" y2="1">
+                                <stop stop-color="#FF6B9D"/>
+                                <stop offset="1" stop-color="#C850C0"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <h1>Sudoku</h1>
+            </div>
+            <div class="header-actions">
+                <button id="tutorial-btn" class="btn btn-ghost" aria-label="How to Play">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    How to Play
+                </button>
+            </div>
+        </header>
+
+        <!-- Game Area -->
+        <main class="game-area">
+            <!-- Status Bar -->
+            <div class="status-bar">
+                <div class="status-item" id="status-difficulty">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    <span id="difficulty-label">Easy</span>
+                </div>
+                <div class="status-item" id="status-timer">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    <span id="timer-display">00:00</span>
+                </div>
+                <div class="status-item" id="status-mistakes">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                    <span>Mistakes: <strong id="mistakes-count">0</strong>/3</span>
+                </div>
+            </div>
+
+            <!-- Board Container -->
+            <div class="board-container">
+                <div id="sudoku-board" class="sudoku-board" role="grid" aria-label="Sudoku puzzle board">
+                    <!-- Cells generated by JS -->
+                </div>
+            </div>
+
+            <!-- Number Pad -->
+            <div class="number-pad" id="number-pad" role="group" aria-label="Number input pad">
+                <button class="num-btn" data-num="1">1</button>
+                <button class="num-btn" data-num="2">2</button>
+                <button class="num-btn" data-num="3">3</button>
+                <button class="num-btn" data-num="4">4</button>
+                <button class="num-btn" data-num="5">5</button>
+                <button class="num-btn" data-num="6">6</button>
+                <button class="num-btn" data-num="7">7</button>
+                <button class="num-btn" data-num="8">8</button>
+                <button class="num-btn" data-num="9">9</button>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-bar">
+                <button id="undo-btn" class="action-btn" aria-label="Undo">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+                    <span>Undo</span>
+                </button>
+                <button id="erase-btn" class="action-btn" aria-label="Erase">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 20H7L3 16l9-13 8 8-7 9"/><line x1="17" y1="13" x2="7" y2="20"/></svg>
+                    <span>Erase</span>
+                </button>
+                <button id="notes-btn" class="action-btn" aria-label="Toggle notes mode">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    <span>Notes</span>
+                </button>
+                <button id="hint-btn" class="action-btn" aria-label="Get hint">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg>
+                    <span>Hint <span id="hints-remaining">(3)</span></span>
+                </button>
+            </div>
+
+            <!-- Difficulty Selector -->
+            <div class="difficulty-bar">
+                <span class="difficulty-label">New Game:</span>
+                <div class="difficulty-btns">
+                    <button class="diff-btn active" data-difficulty="easy" id="diff-easy">Easy</button>
+                    <button class="diff-btn" data-difficulty="medium" id="diff-medium">Medium</button>
+                    <button class="diff-btn" data-difficulty="hard" id="diff-hard">Hard</button>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Built with ❤️ — Use keyboard or tap to play</p>
+        </footer>
+    </div>
+
+    <script src="sudoku.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
