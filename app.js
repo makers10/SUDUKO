@@ -5,8 +5,6 @@
 (function () {
     'use strict';
 
-    const engine = new SudokuEngine();
-
     // ===== Game State =====
     const state = {
         puzzle: [],
@@ -103,44 +101,52 @@
     }
 
     // ===== New Game =====
-    function newGame(difficulty) {
+    async function newGame(difficulty) {
         // Stop timer
         clearInterval(state.timerInterval);
 
         state.difficulty = difficulty;
-        const { puzzle, solution } = engine.generatePuzzle(difficulty);
-        state.puzzle = puzzle;
-        state.solution = solution;
-        state.board = puzzle.map(row => [...row]);
-        state.notes = Array.from({ length: 9 }, () =>
-            Array.from({ length: 9 }, () => new Set())
-        );
-        state.given = puzzle.map(row => row.map(v => v !== 0));
-        state.selectedCell = null;
-        state.notesMode = false;
-        state.mistakes = 0;
-        state.hintsLeft = 3;
-        state.hintsUsed = 0;
-        state.timer = 0;
-        state.history = [];
-        state.gameOver = false;
-        state.gameWon = false;
+        
+        try {
+            const response = await fetch(`/api/puzzle?difficulty=${difficulty}`);
+            const { puzzle, solution } = await response.json();
+            
+            state.puzzle = puzzle;
+            state.solution = solution;
+            state.board = puzzle.map(row => [...row]);
+            state.notes = Array.from({ length: 9 }, () =>
+                Array.from({ length: 9 }, () => new Set())
+            );
+            state.given = puzzle.map(row => row.map(v => v !== 0));
+            state.selectedCell = null;
+            state.notesMode = false;
+            state.mistakes = 0;
+            state.hintsLeft = 3;
+            state.hintsUsed = 0;
+            state.timer = 0;
+            state.history = [];
+            state.gameOver = false;
+            state.gameWon = false;
 
-        // Update UI
-        dom.notesBtn.classList.remove('active');
-        dom.mistakesCount.textContent = '0';
-        dom.difficultyLabel.textContent = capitalize(difficulty);
-        dom.hintsRemaining.textContent = `(${state.hintsLeft})`;
-        dom.victoryOverlay.classList.add('hidden');
+            // Update UI
+            dom.notesBtn.classList.remove('active');
+            dom.mistakesCount.textContent = '0';
+            dom.difficultyLabel.textContent = capitalize(difficulty);
+            dom.hintsRemaining.textContent = `(${state.hintsLeft})`;
+            dom.victoryOverlay.classList.add('hidden');
 
-        // Update difficulty buttons
-        document.querySelectorAll('.diff-btn').forEach(btn => {
-            btn.classList.toggle('active', btn.dataset.difficulty === difficulty);
-        });
+            // Update difficulty buttons
+            document.querySelectorAll('.diff-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.difficulty === difficulty);
+            });
 
-        renderBoard();
-        updateNumberCounts();
-        startTimer();
+            renderBoard();
+            updateNumberCounts();
+            startTimer();
+        } catch (error) {
+            console.error('Failed to fetch puzzle:', error);
+            alert('Failed to start a new game. Please ensure the backend is running.');
+        }
     }
 
     // ===== Render Board =====
