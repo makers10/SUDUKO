@@ -24,6 +24,8 @@
         history: [],         // undo stack
         gameOver: false,
         gameWon: false,
+        leaderboardDifficulty: 'easy',
+        isScoreSubmitted: false,
     };
 
     // ===== DOM Elements =====
@@ -51,6 +53,15 @@
         victoryNewGameBtn: document.getElementById('victory-new-game-btn'),
         victoryTitle: document.getElementById('victory-title'),
         victoryParticles: document.getElementById('victory-particles'),
+        victorySubmission: document.getElementById('victory-submission'),
+        playerNameInput: document.getElementById('player-name'),
+        submitScoreBtn: document.getElementById('submit-score-btn'),
+        leaderboardBtn: document.getElementById('leaderboard-btn'),
+        leaderboardOverlay: document.getElementById('leaderboard-overlay'),
+        leaderboardCloseBtn: document.getElementById('leaderboard-close-btn'),
+        rankingsBody: document.getElementById('rankings-body'),
+        rankingsEmpty: document.getElementById('rankings-empty'),
+        rankingsLoading: document.getElementById('rankings-loading'),
         bgParticles: document.getElementById('bg-particles'),
     };
 
@@ -61,7 +72,13 @@
         bindEvents();
         showTutorialOnFirstVisit();
         initDraggableLogo();
+        loadPlayerName();
         newGame('easy');
+    }
+
+    function loadPlayerName() {
+        const name = localStorage.getItem('sudoku-player-name');
+        if (name) dom.playerNameInput.value = name;
     }
 
     // ===== Draggable Logo =====
@@ -184,6 +201,7 @@
             state.history = [];
             state.gameOver = false;
             state.gameWon = false;
+            state.isScoreSubmitted = false;
 
             // Update UI
             dom.notesBtn.classList.remove('active');
@@ -191,6 +209,9 @@
             dom.difficultyLabel.textContent = capitalize(difficulty);
             dom.hintsRemaining.textContent = `(${state.hintsLeft})`;
             dom.victoryOverlay.classList.add('hidden');
+            dom.victorySubmission.classList.remove('hidden');
+            dom.submitScoreBtn.disabled = false;
+            dom.submitScoreBtn.textContent = 'Submit to Leaderboard';
 
             // Update difficulty buttons
             document.querySelectorAll('.diff-btn').forEach(btn => {
@@ -475,6 +496,115 @@
         dom.victoryOverlay.classList.remove('hidden');
     }
 
+    // ===== Leaderboard Logic =====
+    async function fetchLeaderboard(difficulty) {
+        state.leaderboardDifficulty = difficulty;
+        
+        // Update tabs UI
+        document.querySelectorAll('.rank-tab').forEach(tab => {
+            tab.classList.toggle('active', tab.dataset.difficulty === difficulty);
+        });
+
+        dom.rankingsBody.innerHTML = '';
+        dom.rankingsLoading.classList.remove('hidden');
+        dom.rankingsEmpty.classList.add('hidden');
+
+        try {
+            const response = await fetch(`/api/leaderboard?difficulty=${difficulty}`);
+            const rankings = await response.json();
+            
+            dom.rankingsLoading.classList.add('hidden');
+            
+            if (rankings.length === 0) {
+                dom.rankingsEmpty.classList.remove('hidden');
+                return;
+            }
+
+            rankings.forEach((entry, index) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>#${index + 1}</td>
+                    <td>${escapeHTML(entry.name)}</td>
+                    <td>${formatTime(entry.time)}</td>
+                    <td>${entry.mistakes}</td>
+                `;
+                dom.rankingsBody.appendChild(tr);
+            });
+        } catch (error) {
+            console.error('Failed to fetch leaderboard:', error);
+            dom.rankingsLoading.innerHTML = '<span style="color: var(--error)">Failed to load rankings</span>';
+        }
+    }
+
+    async function submitScore() {
+        const name = dom.playerNameInput.value.trim();
+        if (!name) {
+            alert('Please enter your name');
+            return;
+        }
+
+        if (state.isScoreSubmitted) return;
+
+        state.isScoreSubmitted = true;
+        dom.submitScoreBtn.disabled = true;
+        dom.submitScoreBtn.textContent = 'Submitting...';
+
+        localStorage.setItem('sudoku-player-name', name);
+
+        const scoreData = {
+            name: name,
+            time: state.timer,
+            difficulty: state.difficulty,
+            mistakes: state.mistakes
+        };
+
+        try {
+            const response = await fetch('/api/leaderboard', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(scoreData)
+            });
+
+            if (response.ok) {
+                dom.submitScoreBtn.textContent = 'Submitted! ✓';
+                dom.submitScoreBtn.style.background = 'var(--success)';
+                setTimeout(() => {
+                    dom.victorySubmission.classList.add('hidden');
+                    openLeaderboard(state.difficulty);
+                }, 1000);
+            } else {
+                throw new Error('Failed to submit');
+            }
+        } catch (error) {
+            console.error('Submission error:', error);
+            alert('Failed to submit score. Please try again.');
+            state.isScoreSubmitted = false;
+            dom.submitScoreBtn.disabled = false;
+            dom.submitScoreBtn.textContent = 'Submit to Leaderboard';
+        }
+    }
+
+    function openLeaderboard(difficulty = 'easy') {
+        fetchLeaderboard(difficulty);
+        dom.leaderboardOverlay.classList.remove('hidden');
+    }
+
+    function closeLeaderboard() {
+        dom.leaderboardOverlay.classList.add('hidden');
+    }
+
+    function formatTime(seconds) {
+        const mins = Math.floor(seconds / 60).toString().padStart(2, '0');
+        const secs = (seconds % 60).toString().padStart(2, '0');
+        return `${mins}:${secs}`;
+    }
+
+    function escapeHTML(str) {
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+
     function triggerConfetti() {
         dom.victoryParticles.innerHTML = '';
         const colors = ['#7C5CFC', '#B94FFF', '#FF6B9D', '#00D4AA', '#C850C0', '#FFD700'];
@@ -575,6 +705,14 @@
 
         // Victory
         dom.victoryNewGameBtn.addEventListener('click', () => newGame(state.difficulty));
+        dom.submitScoreBtn.addEventListener('click', submitScore);
+
+        // Leaderboard
+        dom.leaderboardBtn.addEventListener('click', () => openLeaderboard(state.difficulty));
+        dom.leaderboardCloseBtn.addEventListener('click', closeLeaderboard);
+        document.querySelectorAll('.rank-tab').forEach(tab => {
+            tab.addEventListener('click', () => fetchLeaderboard(tab.dataset.difficulty));
+        });
 
         // Keyboard
         document.addEventListener('keydown', handleKeyboard);
@@ -584,6 +722,7 @@
             if (e.key === 'Escape') {
                 if (!dom.tutorialOverlay.classList.contains('hidden')) closeTutorial();
                 if (!dom.victoryOverlay.classList.contains('hidden')) dom.victoryOverlay.classList.add('hidden');
+                if (!dom.leaderboardOverlay.classList.contains('hidden')) closeLeaderboard();
             }
         });
     }

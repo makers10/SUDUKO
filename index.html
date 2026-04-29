@@ -180,7 +180,54 @@
                     <span id="victory-hints" class="stat-value">0</span>
                 </div>
             </div>
+            <div id="victory-submission" class="victory-submission">
+                <input type="text" id="player-name" placeholder="Enter your name" maxlength="20" class="input-glow">
+                <button id="submit-score-btn" class="btn btn-secondary">Submit to Leaderboard</button>
+            </div>
             <button id="victory-new-game-btn" class="btn btn-primary btn-glow">New Game</button>
+        </div>
+    </div>
+
+    <!-- Leaderboard Overlay -->
+    <div id="leaderboard-overlay" class="overlay hidden">
+        <div class="leaderboard-modal">
+            <button id="leaderboard-close-btn" class="modal-close-btn" aria-label="Close leaderboard">&times;</button>
+            <div class="leaderboard-content">
+                <div class="leaderboard-header">
+                    <div class="leaderboard-icon">🏆</div>
+                    <h2>Global Rankings</h2>
+                </div>
+                
+                <div class="leaderboard-tabs">
+                    <button class="rank-tab active" data-difficulty="easy">Easy</button>
+                    <button class="rank-tab" data-difficulty="medium">Medium</button>
+                    <button class="rank-tab" data-difficulty="hard">Hard</button>
+                    <button class="rank-tab" data-difficulty="master">Master</button>
+                </div>
+
+                <div class="rankings-container">
+                    <table class="rankings-table">
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Player</th>
+                                <th>Time</th>
+                                <th>Mistakes</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rankings-body">
+                            <!-- Rankings will be injected here -->
+                        </tbody>
+                    </table>
+                    <div id="rankings-empty" class="rankings-empty hidden">
+                        No scores yet. Be the first to rank!
+                    </div>
+                    <div id="rankings-loading" class="rankings-loading">
+                        <div class="loader"></div>
+                        <span>Fetching rankings...</span>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -215,6 +262,10 @@
                 <h1>Sudoku</h1>
             </div>
             <div class="header-actions">
+                <button id="leaderboard-btn" class="btn btn-ghost" aria-label="Leaderboard">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+                    Leaderboard
+                </button>
                 <button id="tutorial-btn" class="btn btn-ghost" aria-label="How to Play">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
                     How to Play
