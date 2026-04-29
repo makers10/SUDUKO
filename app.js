@@ -49,6 +49,8 @@
         victoryMistakes: document.getElementById('victory-mistakes'),
         victoryHints: document.getElementById('victory-hints'),
         victoryNewGameBtn: document.getElementById('victory-new-game-btn'),
+        victoryTitle: document.getElementById('victory-title'),
+        victoryParticles: document.getElementById('victory-particles'),
         bgParticles: document.getElementById('bg-particles'),
     };
 
@@ -453,11 +455,41 @@
     }
 
     function showVictory() {
+        const isPerfect = state.mistakes === 0;
+        
         dom.victoryTime.textContent = dom.timerDisplay.textContent;
         dom.victoryDifficulty.textContent = capitalize(state.difficulty);
         dom.victoryMistakes.textContent = state.mistakes;
         dom.victoryHints.textContent = state.hintsUsed;
+        
+        if (isPerfect) {
+            dom.victoryTitle.textContent = 'Perfect Game! 🎉';
+            dom.victoryTitle.classList.add('perfect');
+            triggerConfetti();
+        } else {
+            dom.victoryTitle.textContent = 'Puzzle Complete!';
+            dom.victoryTitle.classList.remove('perfect');
+            dom.victoryParticles.innerHTML = '';
+        }
+
         dom.victoryOverlay.classList.remove('hidden');
+    }
+
+    function triggerConfetti() {
+        dom.victoryParticles.innerHTML = '';
+        const colors = ['#7C5CFC', '#B94FFF', '#FF6B9D', '#00D4AA', '#C850C0', '#FFD700'];
+        for (let i = 0; i < 100; i++) {
+            const c = document.createElement('div');
+            c.classList.add('confetti');
+            c.style.left = Math.random() * 100 + '%';
+            c.style.background = colors[Math.floor(Math.random() * colors.length)];
+            c.style.width = (Math.random() * 8 + 4) + 'px';
+            c.style.height = (Math.random() * 8 + 4) + 'px';
+            c.style.animationDuration = (Math.random() * 2 + 1) + 's';
+            c.style.animationDelay = (Math.random() * 2) + 's';
+            c.style.opacity = Math.random();
+            dom.victoryParticles.appendChild(c);
+        }
     }
 
     // ===== Tutorial =====

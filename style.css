@@ -205,10 +205,31 @@ body {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-20px); }
 }
-.victory-modal h2 {
-    font-size: 28px; font-weight: 800;
-    background: var(--gradient-1); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
     margin-bottom: 24px;
+}
+.victory-particles {
+    position: absolute; inset: 0;
+    z-index: -1; pointer-events: none;
+    overflow: hidden;
+}
+.confetti {
+    position: absolute;
+    width: 10px; height: 10px;
+    background: #f00;
+    top: -20px;
+    border-radius: 2px;
+    animation: confettiDrop linear forwards;
+}
+@keyframes confettiDrop {
+    to { transform: translateY(500px) rotate(720deg); opacity: 0; }
+}
+.victory-modal h2.perfect {
+    background: var(--gradient-3); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    animation: pulseGlow 1.5s infinite alternate;
+}
+@keyframes pulseGlow {
+    from { filter: drop-shadow(0 0 5px rgba(0, 212, 170, 0.4)); }
+    to { filter: drop-shadow(0 0 15px rgba(0, 212, 170, 0.8)); }
 }
 .victory-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 28px; }
 .victory-stat {
