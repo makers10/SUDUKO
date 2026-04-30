@@ -703,3 +703,76 @@ body {
 .hidden {
     display: none !important;
 }
+
+/* Coach Overlay Styles */
+.coach-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(5, 5, 20, 0.7);
+    backdrop-filter: blur(8px);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.3s ease;
+}
+
+.coach-tip {
+    background: var(--bg-secondary);
+    border: 2px solid var(--accent-1);
+    border-radius: var(--radius-xl);
+    padding: 30px;
+    max-width: 400px;
+    width: 90%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 20px;
+    box-shadow: 0 0 50px rgba(124, 92, 252, 0.4);
+    animation: modalSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.coach-icon {
+    font-size: 40px;
+    background: rgba(124, 92, 252, 0.1);
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--accent-1);
+}
+
+.coach-content h3 {
+    color: var(--accent-3);
+    margin-bottom: 10px;
+    font-size: 20px;
+}
+
+.coach-message {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    font-size: 15px;
+}
+
+.coach-solution {
+    background: rgba(0, 212, 170, 0.1);
+    color: var(--accent-4);
+    padding: 10px 20px;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    border: 1px dashed var(--accent-4);
+}
+
+.coach-solution strong {
+    font-size: 1.2em;
+    color: #fff;
+    margin-left: 5px;
+}
+
+.btn-sm {
+    padding: 10px 20px;
+    font-size: 14px;
+}

@@ -75,6 +75,12 @@
         recordShareTwitter: document.getElementById('record-share-twitter'),
         recordShareWhatsapp: document.getElementById('record-share-whatsapp'),
         recordShareNative: document.getElementById('record-share-native'),
+        // Coach Tips
+        coachOverlay: document.getElementById('coach-overlay'),
+        coachTitle: document.getElementById('coach-title'),
+        coachMessage: document.getElementById('coach-message'),
+        coachSolutionVal: document.getElementById('coach-solution-val'),
+        coachCloseBtn: document.getElementById('coach-close-btn'),
     };
 
     // ===== Initialization =====
@@ -350,7 +356,9 @@
             const cell = document.getElementById(`cell-${row}-${col}`);
             renderBoard();
             cell.classList.add('error');
-            setTimeout(() => cell.classList.remove('error'), 500);
+            
+            // Show Coach Tip for errors
+            showCoachTip(row, col, num, correct);
 
             if (state.mistakes >= state.maxMistakes) {
                 state.gameOver = true;
@@ -699,7 +707,6 @@
     function showTutorialOnFirstVisit() {
         if (!localStorage.getItem('sudoku-tutorial-seen')) {
             openTutorial();
-            localStorage.setItem('sudoku-tutorial-seen', 'true');
         }
     }
 
@@ -710,6 +717,12 @@
     }
 
     function closeTutorial() {
+        if (!localStorage.getItem('sudoku-tutorial-seen')) {
+            localStorage.setItem('sudoku-tutorial-seen', 'true');
+            setTimeout(() => {
+                showCoachTipGeneral("Welcome to your first game! 🎉", "I've started an Easy puzzle for you. I'll watch your moves and explain any mistakes to help you learn the rules. Good luck!");
+            }, 600);
+        }
         dom.tutorialOverlay.classList.add('hidden');
     }
 
@@ -779,6 +792,11 @@
         dom.recordContinueBtn.addEventListener('click', () => {
             dom.recordOverlay.classList.add('hidden');
             showVictory();
+        });
+
+        // Coach Close
+        dom.coachCloseBtn.addEventListener('click', () => {
+            dom.coachOverlay.classList.add('hidden');
         });
 
         // Leaderboard
@@ -910,6 +928,50 @@
                 }
             }
         }
+    }
+
+    // ===== Coach & Error Feedback =====
+    function showCoachTip(row, col, num, correct) {
+        const reason = findConflictReason(row, col, num);
+        dom.coachTitle.textContent = "Oops! Error Detected";
+        dom.coachMessage.textContent = reason;
+        dom.coachSolutionVal.textContent = correct;
+        document.querySelector('.coach-solution').style.display = 'block';
+        dom.coachOverlay.classList.remove('hidden');
+    }
+
+    function showCoachTipGeneral(title, message) {
+        dom.coachTitle.textContent = title;
+        dom.coachMessage.textContent = message;
+        document.querySelector('.coach-solution').style.display = 'none';
+        dom.coachOverlay.classList.remove('hidden');
+    }
+
+    function findConflictReason(row, col, num) {
+        // Check Row
+        for (let c = 0; c < 9; c++) {
+            if (c !== col && state.board[row][c] === num) {
+                return `The number ${num} already exists in this horizontal row (Row ${row + 1}). Each row must have unique numbers from 1-9.`;
+            }
+        }
+        // Check Column
+        for (let r = 0; r < 9; r++) {
+            if (r !== row && state.board[r][col] === num) {
+                return `The number ${num} already exists in this vertical column (Column ${col + 1}). Each column must have unique numbers from 1-9.`;
+            }
+        }
+        // Check Box
+        const boxR = Math.floor(row / 3) * 3;
+        const boxC = Math.floor(col / 3) * 3;
+        for (let r = boxR; r < boxR + 3; r++) {
+            for (let c = boxC; c < boxC + 3; c++) {
+                if ((r !== row || c !== col) && state.board[r][c] === num) {
+                    return `The number ${num} already exists in this 3x3 sub-grid. Each of the nine 3x3 boxes must contain all digits from 1-9 without repeats.`;
+                }
+            }
+        }
+        // If no direct conflict found (e.g. valid move but wrong solution)
+        return `While ${num} doesn't directly conflict with existing numbers in its row, column, or box, it's not the correct value for this specific cell based on the puzzle's logic.`;
     }
 
     // ===== Utility =====
