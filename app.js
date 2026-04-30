@@ -62,6 +62,11 @@
         rankingsBody: document.getElementById('rankings-body'),
         rankingsEmpty: document.getElementById('rankings-empty'),
         rankingsLoading: document.getElementById('rankings-loading'),
+        recordOverlay: document.getElementById('record-overlay'),
+        recordDifficultyText: document.getElementById('record-difficulty-text'),
+        recordTimeValue: document.getElementById('record-time-value'),
+        recordContinueBtn: document.getElementById('record-continue-btn'),
+        epicParticles: document.getElementById('epic-particles'),
         bgParticles: document.getElementById('bg-particles'),
     };
 
@@ -461,7 +466,7 @@
     }
 
     // ===== Check Victory =====
-    function checkVictory() {
+    async function checkVictory() {
         // Check if all cells are filled correctly
         for (let r = 0; r < 9; r++) {
             for (let c = 0; c < 9; c++) {
@@ -472,7 +477,63 @@
         state.gameWon = true;
         clearInterval(state.timerInterval);
 
-        setTimeout(() => showVictory(), 400);
+        // Check for record before showing victory
+        let isRecord = false;
+        try {
+            const response = await fetch(`/api/leaderboard?difficulty=${state.difficulty}`);
+            const rankings = await response.json();
+            if (rankings.length === 0 || state.timer < rankings[0].time) {
+                isRecord = true;
+            }
+        } catch (e) {
+            console.error('Record check failed:', e);
+        }
+
+        setTimeout(() => {
+            if (isRecord) {
+                showRecordCelebration();
+            } else {
+                showVictory();
+            }
+        }, 400);
+    }
+
+    function showRecordCelebration() {
+        dom.recordDifficultyText.textContent = capitalize(state.difficulty);
+        dom.recordTimeValue.textContent = dom.timerDisplay.textContent;
+        dom.recordOverlay.classList.remove('hidden');
+        triggerEpicFireworks();
+    }
+
+    function triggerEpicFireworks() {
+        dom.epicParticles.innerHTML = '';
+        const colors = ['#7C5CFC', '#B94FFF', '#FF6B9D', '#00D4AA', '#FFD700', '#fff'];
+        
+        const createFirework = () => {
+            const originX = Math.random() * 100;
+            const originY = Math.random() * 100;
+            
+            for (let i = 0; i < 30; i++) {
+                const f = document.createElement('div');
+                f.classList.add('firework');
+                f.style.left = originX + '%';
+                f.style.top = originY + '%';
+                f.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                
+                const angle = (i / 30) * Math.PI * 2;
+                const dist = 100 + Math.random() * 150;
+                f.style.setProperty('--tx', Math.cos(angle) * dist + 'px');
+                f.style.setProperty('--ty', Math.sin(angle) * dist + 'px');
+                
+                dom.epicParticles.appendChild(f);
+                setTimeout(() => f.remove(), 1500);
+            }
+        };
+
+        // Burst interval
+        for (let i = 0; i < 5; i++) {
+            setTimeout(createFirework, i * 400);
+        }
     }
 
     function showVictory() {
@@ -706,6 +767,10 @@
         // Victory
         dom.victoryNewGameBtn.addEventListener('click', () => newGame(state.difficulty));
         dom.submitScoreBtn.addEventListener('click', submitScore);
+        dom.recordContinueBtn.addEventListener('click', () => {
+            dom.recordOverlay.classList.add('hidden');
+            showVictory();
+        });
 
         // Leaderboard
         dom.leaderboardBtn.addEventListener('click', () => openLeaderboard(state.difficulty));
@@ -723,6 +788,7 @@
                 if (!dom.tutorialOverlay.classList.contains('hidden')) closeTutorial();
                 if (!dom.victoryOverlay.classList.contains('hidden')) dom.victoryOverlay.classList.add('hidden');
                 if (!dom.leaderboardOverlay.classList.contains('hidden')) closeLeaderboard();
+                if (!dom.recordOverlay.classList.contains('hidden')) dom.recordOverlay.classList.add('hidden');
             }
         });
     }
