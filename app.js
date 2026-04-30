@@ -68,6 +68,13 @@
         recordContinueBtn: document.getElementById('record-continue-btn'),
         epicParticles: document.getElementById('epic-particles'),
         bgParticles: document.getElementById('bg-particles'),
+        // Sharing Elements
+        shareTwitter: document.getElementById('share-twitter'),
+        shareWhatsapp: document.getElementById('share-whatsapp'),
+        shareNative: document.getElementById('share-native'),
+        recordShareTwitter: document.getElementById('record-share-twitter'),
+        recordShareWhatsapp: document.getElementById('record-share-whatsapp'),
+        recordShareNative: document.getElementById('record-share-native'),
     };
 
     // ===== Initialization =====
@@ -503,6 +510,7 @@
         dom.recordTimeValue.textContent = dom.timerDisplay.textContent;
         dom.recordOverlay.classList.remove('hidden');
         triggerEpicFireworks();
+        initShareButtons(true);
     }
 
     function triggerEpicFireworks() {
@@ -555,6 +563,7 @@
         }
 
         dom.victoryOverlay.classList.remove('hidden');
+        initShareButtons(false);
     }
 
     // ===== Leaderboard Logic =====
@@ -779,6 +788,14 @@
             tab.addEventListener('click', () => fetchLeaderboard(tab.dataset.difficulty));
         });
 
+        // Sharing
+        dom.shareTwitter.addEventListener('click', () => shareScore('twitter'));
+        dom.shareWhatsapp.addEventListener('click', () => shareScore('whatsapp'));
+        dom.shareNative.addEventListener('click', () => shareScore('native'));
+        dom.recordShareTwitter.addEventListener('click', () => shareScore('twitter'));
+        dom.recordShareWhatsapp.addEventListener('click', () => shareScore('whatsapp'));
+        dom.recordShareNative.addEventListener('click', () => shareScore('native'));
+
         // Keyboard
         document.addEventListener('keydown', handleKeyboard);
 
@@ -845,6 +862,53 @@
             if (key === 'ArrowLeft') col = Math.max(0, col - 1);
             if (key === 'ArrowRight') col = Math.min(8, col + 1);
             selectCell(row, col);
+        }
+    }
+
+    // ===== Sharing Logic =====
+    function initShareButtons(isRecord) {
+        const canNativeShare = !!navigator.share;
+        const nativeBtn = isRecord ? dom.recordShareNative : dom.shareNative;
+        const otherNativeBtn = isRecord ? dom.shareNative : dom.recordShareNative;
+        
+        if (canNativeShare) {
+            nativeBtn.classList.remove('hidden');
+        } else {
+            nativeBtn.classList.add('hidden');
+        }
+        // Ensure the other one is hidden too if not in use
+        otherNativeBtn.classList.add('hidden');
+    }
+
+    function getShareMessage() {
+        const time = dom.timerDisplay.textContent;
+        const diff = capitalize(state.difficulty);
+        const text = `I just completed a ${diff} Sudoku puzzle in ${time}! Can you beat my time? 🧩🏆 #SudokuMaster #PuzzleMaster`;
+        return text;
+    }
+
+    async function shareScore(platform) {
+        const text = getShareMessage();
+        const url = window.location.href;
+
+        if (platform === 'twitter') {
+            const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
+            window.open(twitterUrl, '_blank');
+        } else if (platform === 'whatsapp') {
+            const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text + ' ' + url)}`;
+            window.open(whatsappUrl, '_blank');
+        } else if (platform === 'native') {
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: 'Sudoku — Puzzle Master',
+                        text: text,
+                        url: url
+                    });
+                } catch (err) {
+                    console.error('Sharing failed:', err);
+                }
+            }
         }
     }
 
